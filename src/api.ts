@@ -1,9 +1,10 @@
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "").replace(/\/$/, "");
 
 export type EnergyPrediction = {
-  prediction: number;
+  predicted_kwh: number;
   confidence: number;
-  model_status: string;
+  model: string;
+  training_data: string;
   generated_at: string;
 };
 
@@ -26,15 +27,14 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export function predictEnergy(payload: {
-  queue_length: number;
-  active_counters: number;
-  avg_service_time: number;
-  appointments_next_hour: number;
   hour: number;
   day_of_week: number;
-  peak_hour: number;
+  occupancy: number;
+  temperature_c: number;
+  active_devices: number;
+  previous_day_kwh: number;
 }) {
-  return request<EnergyPrediction>("/api/v1/predictions/waiting-time", {
+  return request<EnergyPrediction>("/api/v1/energy/predict", {
     method: "POST",
     body: JSON.stringify(payload),
   });
