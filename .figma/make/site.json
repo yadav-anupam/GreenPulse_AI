@@ -1,0 +1,11 @@
+{
+  "title": "GreenPlus AI",
+  "description": "Empowering educational institutions, this AI-driven platform monitors energy usage, provides insights, and promotes sustainability actions for a greener campus.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
