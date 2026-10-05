@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
 from typing import Any
+import os
 
 import numpy as np
 from fastapi import FastAPI
@@ -11,7 +12,7 @@ app = FastAPI(title="GreenPulse AI API", version="0.2.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[origin.strip() for origin in os.getenv("ALLOWED_ORIGINS", "http://localhost:5173").split(",") if origin.strip()],
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
