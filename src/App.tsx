@@ -167,12 +167,32 @@ function Energy({ go }: { go: (s: Screen) => void }) {
 }
 
 function Prediction({ go }: { go: (s: Screen) => void }) {
+  const [prediction, setPrediction] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    let active = true;
+    import("./api").then(({ predictEnergy }) =>
+      predictEnergy({
+        hour: 14,
+        day_of_week: 1,
+        occupancy: 90,
+        temperature_c: 29,
+        active_devices: 120,
+        previous_day_kwh: 1284,
+      })
+        .then((data) => active && setPrediction(data.predicted_kwh))
+        .catch(() => active && setPrediction(null))
+        .finally(() => active && setLoading(false)),
+    );
+    return () => { active = false; };
+  }, []);
+  const predicted = prediction === null ? "1,350" : Math.round(prediction).toLocaleString();
   return <div className="screen"><Header title="AI Energy Prediction" subtitle="Next 24 hours" back={() => go("energy")} />
     <Card className="chart-card prediction-card">
       <div className="legend"><span><i className="actual"/>Actual</span><span><i className="predicted"/>AI predicted</span></div><MiniChart prediction/>
       <div className="chart-axis"><span>12 AM</span><span>8 AM</span><span>4 PM</span><span>12 AM</span></div>
     </Card>
-    <Card className="prediction-summary"><span className="ai-orb"><Icon name="spark"/></span><div><span>Expected consumption tomorrow</span><strong>1,350 kWh</strong><small>AI-generated estimate</small></div></Card>
+    <Card className="prediction-summary"><span className="ai-orb"><Icon name="spark"/></span><div><span>Expected consumption tomorrow</span><strong>{loading ? "…" : predicted} kWh</strong><small>AI-generated estimate</small></div></Card>
     <div className="three-metrics"><div><span>Confidence</span><b>91%</b><small>High</small></div><div><span>Peak period</span><b>2–4 PM</b><small>Expected</small></div><div><span>Change</span><b className="down">−3.2%</b><small>vs. today</small></div></div>
     <Card className="explain-card"><Icon name="info"/><div><b>How this prediction works</b><p>AI analyzes historical energy usage, occupancy, temperature and time-based patterns to estimate future consumption.</p></div></Card>
     <div className="note"><Icon name="spark" size={16}/> Predictions are estimates and may vary with campus activity.</div>
